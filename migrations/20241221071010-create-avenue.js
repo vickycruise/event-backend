@@ -1,21 +1,48 @@
 "use strict";
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Avenues", {
+    await queryInterface.createTable("Tickets", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      name: {
-        type: Sequelize.STRING,
+      userId: {
+        type: Sequelize.INTEGER,
         allowNull: false,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
-      address: {
-        type: Sequelize.STRING,
+      eventId: {
+        type: Sequelize.INTEGER,
         allowNull: false,
+        references: {
+          model: "Events",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
+      avenueId: {
+        type: Sequelize.INTEGER,
+        allowNull: true, // Set this to false if it's required
+        references: {
+          model: "Avenues", // assuming there's an Avenues table
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL", // or CASCADE depending on your requirements
+      },
+      seat: {
+        type: Sequelize.STRING,
+      },
+      price: {
+        type: Sequelize.DECIMAL,
       },
       createdAt: {
         allowNull: false,
@@ -29,6 +56,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Avenues");
+    await queryInterface.dropTable("Tickets");
   },
 };

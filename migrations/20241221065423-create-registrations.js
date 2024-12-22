@@ -28,6 +28,16 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
+      ticketId: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: "Tickets", // foreign key to Tickets
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
