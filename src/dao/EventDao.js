@@ -6,7 +6,10 @@ const eventDAO = {
   },
 
   async getAllEvents() {
-    return await Event.findAll({ include: [Avenue] });
+    return await Event.findAll({
+      include: [Avenue],
+      order: [["statDate", "DESC"]], // Order by date in descending order
+    });
   },
 
   async getEventById(eventId) {
