@@ -1,17 +1,24 @@
-// controllers/eventController.js
 const eventDAO = require("../dao/EventDao");
 
 const eventController = {
   // Create a new event
   async createEvent(req, res) {
     try {
-      const { title, statDate, endDate, location, description } = req.body;
+      const { title, statDate, endDate, location, description, avenueId } =
+        req.body;
 
       // Business logic validation: Ensure start date is before end date
       if (new Date(statDate) > new Date(endDate)) {
         return res
           .status(400)
           .json({ error: "Start date cannot be after end date" });
+      }
+
+      // Ensure all required fields are present
+      if (!title || !statDate || !endDate || !location || !avenueId) {
+        return res
+          .status(400)
+          .json({ error: "All required fields must be provided" });
       }
 
       // Create the event
@@ -21,11 +28,15 @@ const eventController = {
         endDate,
         location,
         description,
+        avenueId,
       });
 
       res.status(201).json(event);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      console.error("Error creating event:", error);
+      res
+        .status(500)
+        .json({ error: "Failed to create event", details: error.message });
     }
   },
 
@@ -33,9 +44,15 @@ const eventController = {
   async getAllEvents(req, res) {
     try {
       const events = await eventDAO.getAllEvents();
+      if (events.length === 0) {
+        return res.status(404).json({ error: "No events found" });
+      }
       res.status(200).json(events);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      console.error("Error fetching events:", error);
+      res
+        .status(500)
+        .json({ error: "Failed to retrieve events", details: error.message });
     }
   },
 
@@ -50,20 +67,35 @@ const eventController = {
 
       res.status(200).json(event);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      console.error("Error fetching event:", error);
+      res
+        .status(500)
+        .json({ error: "Failed to retrieve event", details: error.message });
     }
   },
 
   // Update an event by ID
   async updateEvent(req, res) {
     try {
-      const { title, statDate, endDate, location, description } = req.body;
+      const { title, statDate, endDate, location, description, avenueId } =
+        req.body;
 
       // Business logic validation: Ensure start date is before end date
       if (statDate && endDate && new Date(statDate) > new Date(endDate)) {
         return res
           .status(400)
           .json({ error: "Start date cannot be after end date" });
+      }
+
+      // Ensure all required fields are present (if updating)
+      if (
+        title === undefined ||
+        location === undefined ||
+        avenueId === undefined
+      ) {
+        return res
+          .status(400)
+          .json({ error: "Title, location, and avenueId are required fields" });
       }
 
       // Update the event
@@ -73,6 +105,7 @@ const eventController = {
         endDate,
         location,
         description,
+        avenueId,
       });
 
       if (rowsUpdated[0]) {
@@ -81,7 +114,10 @@ const eventController = {
         res.status(404).json({ error: "Event not found" });
       }
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      console.error("Error updating event:", error);
+      res
+        .status(500)
+        .json({ error: "Failed to update event", details: error.message });
     }
   },
 
@@ -96,7 +132,10 @@ const eventController = {
         res.status(404).json({ error: "Event not found" });
       }
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      console.error("Error deleting event:", error);
+      res
+        .status(500)
+        .json({ error: "Failed to delete event", details: error.message });
     }
   },
 };
